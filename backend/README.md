@@ -2,87 +2,100 @@
 
 Backend API cho hệ thống dự báo nhu cầu sản phẩm sử dụng Machine Learning.
 
+
 ## Cấu trúc dự án
 
 ```
 backend/
 ├── main.py                 # Điểm khởi động ứng dụng FastAPI
 ├── requirements.txt        # Dependencies
-├── README.md              # Documentation
-├── .gitignore             # Git ignore rules
-├── routers/               # API endpoints
+├── README.md               # Documentation
+├── .gitignore              # Git ignore rules
+├── debug_data.py           # Script debug dữ liệu
+├── shared_state.py         # Biến dùng chung
+├── config/                 # Cấu hình hệ thống
 │   ├── __init__.py
-│   ├── datasets.py        # Quản lý dataset
-│   ├── train.py          # Training endpoints
-│   ├── models.py         # Quản lý models
-│   └── dashboard.py      # Dashboard & metrics
-├── services/             # Business logic
+│   └── settings.py         # Đường dẫn, biến môi trường
+├── routers/                # API endpoints
 │   ├── __init__.py
-│   ├── data_service.py   # Xử lý dữ liệu
-│   ├── train_xgb.py     # XGBoost training
-│   ├── train_prophet.py # Prophet training
-│   └── metrics.py       # Tính toán metrics
-├── utils/               # Utilities
+│   ├── datasets.py         # Quản lý dataset
+│   ├── train.py            # Training endpoints
+│   ├── models.py           # Quản lý models
+│   └── dashboard.py        # Dashboard & metrics
+├── ml_models/              # Các model machine learning
 │   ├── __init__.py
-│   └── helpers.py       # Helper functions
-├── data/                # Dữ liệu gốc và đã xử lý
-│   ├── raw/             # Dữ liệu gốc (Excel/CSV files)
-│   │   ├── UNIS_ORDER.xlsx
-│   │   └── ...
-│   ├── processed/       # Dữ liệu đã xử lý
-│   │   ├── weekly_demand.csv
-│   │   └── ...
-│   └── external/        # Dữ liệu từ bên ngoài
-├── storage/             # Lưu trữ files hệ thống
-│   ├── datasets/        # Dataset files uploaded via API
-│   ├── models/          # Trained model files
-│   ├── results/         # Training results & metrics
-│   ├── plots/           # Visualization plots
-│   └── predictions/     # Prediction outputs
-└── logs/               # Log files
-    └── .gitkeep
+│   ├── prophet_model.py    # Prophet model
+│   └── xgboost_model.py    # XGBoost model
+├── services/               # Business logic
+│   ├── __init__.py
+│   ├── data_service.py     # Xử lý dữ liệu
+│   ├── metrics_service.py  # Tính toán metrics
+│   └── train_service.py    # Train model
+├── schemas/                # Định nghĩa schema cho API
+│   ├── __init__.py
+│   ├── dataset_schema.py
+│   ├── model_schema.py
+│   └── train_schema.py
+├── utils/                  # Utilities
+│   ├── __init__.py
+│   ├── helpers.py          # Helper functions
+│   └── logger.py           # Ghi log
+├── data/                   # Dữ liệu gốc và đã xử lý
+│   ├── raw/                # Dữ liệu gốc (Excel/CSV files)
+│   │   └── UNIS_ORDER.xlsx
+│   ├── processed/          # Dữ liệu đã xử lý (csv)
+│   │   ├── sample_weekly_demand.csv
+│   │   └── weekly_demand_*.csv
+│   └── external/           # Dữ liệu từ bên ngoài
+├── logs/                   # Log file
+│   ├── api.log
+│   ├── prediction.log
+│   └── training.log
+├── storage/                # Lưu trữ files hệ thống
+│   ├── datasets/           # Dataset files uploaded via API
+│   ├── models/             # Trained model files
+│   ├── results/            # Training results & metrics
+│   ├── plots/              # Visualization plots
+│   └── predictions/        # Kết quả dự báo
+└── __pycache__/            # File biên dịch python
 ```
-
-## Cài đặt
-
-1. Tạo virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-```
-
-2. Cài đặt dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Chạy ứng dụng:
-```bash
-python main.py
-```
-
-API sẽ chạy tại: http://localhost:8000
-
-## API Documentation
-
-### 1. Datasets
-
-#### Upload Dataset
-```http
-POST /datasets/
-Content-Type: multipart/form-data
-
-file: [Excel/CSV file]
-name: "UNIS Orders Dataset"
-description: "Dataset for demand forecasting"
-tags: "sales,forecast,unis"
-```
-
-#### List Datasets
 ```http
 GET /datasets/
 ```
+
+## Sơ đồ cấu trúc API Backend
+
+```
+/datasets
+  ├── GET /datasets/                  # Danh sách dataset
+  ├── GET /datasets/{dataset_id}      # Chi tiết dataset
+  └── DELETE /datasets/{dataset_id}   # Xóa dataset
+
+/train
+  ├── POST /train/                    # Train model
+  ├── POST /train/validate            # Validate dữ liệu
+  ├── GET  /train/jobs                # Danh sách job train
+  ├── GET  /train/job/{job_id}/status # Trạng thái job
+  └── GET  /train/job/{job_id}/result # Kết quả job
+
+/models
+  ├── GET    /models/                 # Danh sách model
+  ├── GET    /models/{model_id}       # Thông tin model
+  ├── POST   /models/{model_id}/deploy    # Deploy model
+  ├── POST   /models/{model_id}/retrain   # Retrain model
+  ├── PATCH  /models/{model_id}           # Sửa thông tin model
+  ├── POST   /models/{model_id}/predict   # Dự báo 1 sản phẩm
+  ├── POST   /models/{model_id}/batch_predict # Dự báo nhiều sản phẩm
+  └── GET    /models/{model_id}/download # Download file model
+
+/dashboard
+  ├── GET /dashboard/metrics          # Metrics tổng quan
+  ├── GET /dashboard/performance      # Hiệu suất model
+  ├── GET /dashboard/trends           # Xu hướng
+  └── GET /dashboard/alerts           # Cảnh báo
+
+/health
+  └── GET /health                     # Kiểm tra trạng thái server
 
 #### Get Dataset Details
 ```http
