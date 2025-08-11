@@ -67,36 +67,45 @@ GET /datasets/
 
 ```
 /datasets
-  ├── GET /datasets/                  # Danh sách dataset
-  ├── GET /datasets/{dataset_id}      # Chi tiết dataset
-  └── DELETE /datasets/{dataset_id}   # Xóa dataset
+  ├── GET    /datasets/                              # Danh sách dataset
+  ├── POST   /datasets/                              # Upload dataset
+  ├── GET    /datasets/{dataset_id}                  # Chi tiết dataset
+  ├── DELETE /datasets/{dataset_id}                  # Xóa dataset
+  ├── PATCH  /datasets/{dataset_id}                  # Cập nhật thông tin dataset
+  ├── GET    /datasets/{dataset_id}/download         # Download dataset
+  ├── GET    /datasets/{dataset_id}/visualization    # Lấy biểu đồ/visualization dataset
+  ├── GET    /datasets/raw/list                      # Danh sách file raw
+  └── GET    /datasets/processed/list                # Danh sách file đã xử lý
 
 /train
-  ├── POST /train/                    # Train model
-  ├── POST /train/validate            # Validate dữ liệu
-  ├── GET  /train/jobs                # Danh sách job train
-  ├── GET  /train/job/{job_id}/status # Trạng thái job
-  └── GET  /train/job/{job_id}/result # Kết quả job
+  ├── POST   /train/                                 # Train model
+  ├── POST   /train/validate                         # Validate dữ liệu
+  ├── GET    /train/jobs                             # Danh sách job training
+  ├── GET    /train/job/{job_id}/status              # Trạng thái job training
+  └── GET    /train/job/{job_id}/result              # Kết quả job training
 
 /models
-  ├── GET    /models/                 # Danh sách model
-  ├── GET    /models/{model_id}       # Thông tin model
-  ├── POST   /models/{model_id}/deploy    # Deploy model
-  ├── POST   /models/{model_id}/retrain   # Retrain model
-  ├── PATCH  /models/{model_id}           # Sửa thông tin model
-  ├── POST   /models/{model_id}/predict   # Dự báo 1 sản phẩm
-  ├── POST   /models/{model_id}/batch_predict # Dự báo nhiều sản phẩm
-  └── GET    /models/{model_id}/download # Download file model
+  ├── GET    /models/                                # Danh sách model
+  ├── GET    /models/{model_id}                      # Chi tiết model
+  ├── PATCH  /models/{model_id}                      # Cập nhật thông tin model
+  ├── DELETE /models/{model_id}                      # Xóa model
+  ├── POST   /models/{model_id}/deploy               # Deploy model
+  ├── POST   /models/{model_id}/retrain              # Retrain model
+  ├── POST   /models/{model_id}/predict              # Dự báo 1 sản phẩm
+  ├── POST   /models/{model_id}/batch_predict        # Dự báo nhiều sản phẩm
+  └── GET    /models/{model_id}/download             # Download file model
 
 /dashboard
-  ├── GET /dashboard/metrics          # Metrics tổng quan
-  ├── GET /dashboard/performance      # Hiệu suất model
-  ├── GET /dashboard/trends           # Xu hướng
-  └── GET /dashboard/alerts           # Cảnh báo
+  ├── GET    /dashboard/metrics                      # Lấy metrics tổng quan
+  ├── GET    /dashboard/performance                  # Lấy hiệu suất model
+  ├── GET    /dashboard/trends                       # Lấy xu hướng
+  ├── GET    /dashboard/alerts                       # Lấy danh sách cảnh báo
+  └── GET    /dashboard/summary                      # Lấy tóm tắt tổng quan
 
-/health
-  └── GET /health                     # Kiểm tra trạng thái server
-
+/default
+  ├── GET    /                                       # Root
+  └── GET    /health                                 # Kiểm tra trạng thái server
+```
 #### Get Dataset Details
 ```http
 GET /datasets/{dataset_id}
